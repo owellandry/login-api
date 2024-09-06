@@ -33,8 +33,8 @@ export default function Home() {
         setError(null);
         setCooldown(15); // Set cooldown to 15 seconds
       } else {
-        const data = await response.json();
-        setError(data.error || "Error al enviar el código");
+        const { error: responseError } = await response.json();
+        setError(responseError || "Error al enviar el código");
       }
     } catch (err) {
       setError("Error al conectar con el servidor");
@@ -54,15 +54,14 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const data = await response.json();
         alert("Autenticación exitosa!");
         setStep(1);
         setEmail("");
         setCode("");
         setError(null);
       } else {
-        const data = await response.json();
-        setError(data.error || "Código incorrecto");
+        const { error: responseError } = await response.json();
+        setError(responseError || "Código incorrecto");
       }
     } catch (err) {
       setError("Error al conectar con el servidor");
