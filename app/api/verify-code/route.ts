@@ -9,7 +9,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Crear una nueva conexión a la base de datos
     const connection = await mysql.createConnection({
       host: process.env.SQL_HOST,
       user: process.env.SQL_USER,
@@ -18,14 +17,24 @@ export async function POST(request: Request) {
     });
 
     // Verificar si el código de verificación es válido
-    const [rows]: any = await connection.execute(
+    const [verificationRows]: any = await connection.execute(
       'SELECT * FROM verification_codes WHERE email = ? AND code = ? AND expiration > NOW()',
       [email, code]
     );
 
-    if (rows.length > 0) {
+    if (verificationRows.length > 0) {
+      // Verificar si el usuario ya existe
+      const [userRows]: any = await connection.execute(
+        'SELECT * FROM usuarios WHERE correo = ?',
+        [email]
+      );
+
       await connection.end();
-      return NextResponse.json({ message: 'Código verificado con éxito.' });
+      return NextResponse.json({
+        message: 'Código verificado con éxito.',
+        userExists: userRows.length > 0,
+        username: userRows.length > 0 ? userRows[0].nombre_usuario : null,
+      });
     } else {
       await connection.end();
       return NextResponse.json({ error: 'Código inválido o expirado.' }, { status: 400 });

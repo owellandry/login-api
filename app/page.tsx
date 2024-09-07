@@ -57,15 +57,15 @@ export default function Home() {
         },
         body: JSON.stringify({ email, code }),
       });
-
+  
       if (response.ok) {
         const { userExists, username } = await response.json();
         setUserExists(userExists);
         setUsername(username || "");
         setError(null);
-
+  
         if (userExists) {
-          alert(`¡Bienvenido, ${username}!`);
+          alert(`¡Bienvenido de nuevo, ${username}!`);
           setStep(1); // Reiniciamos el proceso si el usuario ya existe
           setEmail("");
           setCode("");
@@ -80,7 +80,7 @@ export default function Home() {
       setError("Error al conectar con el servidor");
     }
     setLoading(false);
-  };
+  };  
 
   const handleRegister = async () => {
     setLoading(true);
