@@ -1,35 +1,37 @@
-// app/api/verify-code/route.ts
 import { NextResponse } from 'next/server';
+import mysql from 'mysql2/promise';
 
 export async function POST(request: Request) {
   const { email, code } = await request.json();
 
-  // Verifica que el correo y el código hayan sido proporcionados
   if (!email || !code) {
-    return NextResponse.json({ error: "Correo y código son requeridos" }, { status: 400 });
+    return NextResponse.json({ error: 'Correo y código son requeridos.' }, { status: 400 });
   }
 
-  // Verifica si el código está almacenado para el correo
-  globalThis.codes = globalThis.codes || {};
-  const storedCodeData = globalThis.codes[email];
+  try {
+    // Crear una nueva conexión a la base de datos
+    const connection = await mysql.createConnection({
+      host: process.env.SQL_HOST,
+      user: process.env.SQL_USER,
+      password: process.env.SQL_PASS,
+      database: process.env.SQL_NAME,
+    });
 
-  if (!storedCodeData) {
-    return NextResponse.json({ error: "Código no solicitado o correo incorrecto" }, { status: 400 });
+    // Verificar si el código de verificación es válido
+    const [rows]: any = await connection.execute(
+      'SELECT * FROM verification_codes WHERE email = ? AND code = ? AND expiration > NOW()',
+      [email, code]
+    );
+
+    if (rows.length > 0) {
+      await connection.end();
+      return NextResponse.json({ message: 'Código verificado con éxito.' });
+    } else {
+      await connection.end();
+      return NextResponse.json({ error: 'Código inválido o expirado.' }, { status: 400 });
+    }
+  } catch (error) {
+    console.error('Error al verificar el código:', error);
+    return NextResponse.json({ error: 'Error en el servidor.' }, { status: 500 });
   }
-
-  // Verifica si el código ha expirado
-  if (Date.now() > storedCodeData.expires) {
-    return NextResponse.json({ error: "El código ha expirado" }, { status: 400 });
-  }
-
-  // Verifica si el código coincide
-  if (storedCodeData.code !== code) {
-    return NextResponse.json({ error: "Código incorrecto" }, { status: 400 });
-  }
-
-  // Si el código es válido, devuelve éxito (aquí puedes manejar el login o la creación de cuenta)
-  // Remueve el código después de verificar
-  delete globalThis.codes[email];
-
-  return NextResponse.json({ message: "Autenticación exitosa" }, { status: 200 });
 }
