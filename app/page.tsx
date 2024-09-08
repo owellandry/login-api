@@ -14,7 +14,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [lastname, setLastname] = useState("");
-  const [userExists, setUserExists] = useState(false);
+  const [, setUserExists] = useState(false);
 
   const isEmailValid = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

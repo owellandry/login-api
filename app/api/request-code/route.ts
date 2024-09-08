@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import mysql, { FieldPacket, RowDataPacket } from 'mysql2/promise';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 
+interface VerificationCodeRow {
+  id: string;
+  email: string;
+  code: string;
+  expiration: string;
+  updated_at?: Date;
+}
+
 export async function POST(request: Request) {
-    const { email } = await request.json();
+    const { email }: { email: string } = await request.json();
 
     if (!email) {
         return NextResponse.json({ error: "El correo es requerido" }, { status: 400 });
@@ -22,17 +30,17 @@ export async function POST(request: Request) {
 
     // Configurar el transporte de correo
     const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
+        host: process.env.SMTP_HOST!,
         port: parseInt(process.env.SMTP_PORT || '465'),
         secure: true,
         auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+            user: process.env.SMTP_USER!,
+            pass: process.env.SMTP_PASS!,
         },
     });
 
     const mailOptions = {
-        from: process.env.SMTP_USER,
+        from: process.env.SMTP_USER!,
         to: email,
         subject: 'Código de Verificación',
         html: `
@@ -56,19 +64,22 @@ export async function POST(request: Request) {
 
         // Crear una nueva conexión a la base de datos
         const connection = await mysql.createConnection({
-            host: process.env.SQL_HOST,
-            user: process.env.SQL_USER,
-            password: process.env.SQL_PASS,
-            database: process.env.SQL_NAME,
+            host: process.env.SQL_HOST!,
+            user: process.env.SQL_USER!,
+            password: process.env.SQL_PASS!,
+            database: process.env.SQL_NAME!,
         });
 
         // Verificar si el correo ya tiene un código en la base de datos
-        const [rows]: any = await connection.execute(
+        const [rows]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
             'SELECT * FROM verification_codes WHERE email = ?',
             [email]
         );
 
-        if (rows.length > 0) {
+        // Asegurarse de que `rows` es de tipo `VerificationCodeRow[]`
+        const verificationRows: VerificationCodeRow[] = rows.map(row => row as VerificationCodeRow);
+
+        if (verificationRows.length > 0) {
             // Actualizar el código existente
             await connection.execute(
                 'UPDATE verification_codes SET code = ?, expiration = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ?',

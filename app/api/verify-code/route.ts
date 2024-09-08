@@ -1,5 +1,17 @@
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { RowDataPacket, FieldPacket } from 'mysql2';
+
+interface VerificationCode {
+  email: string;
+  code: string;
+  expiration: Date;
+}
+
+interface User {
+  correo: string;
+  nombre_usuario: string;
+}
 
 export async function POST(request: Request) {
   const { email, code } = await request.json();
@@ -10,30 +22,36 @@ export async function POST(request: Request) {
 
   try {
     const connection = await mysql.createConnection({
-      host: process.env.SQL_HOST,
-      user: process.env.SQL_USER,
-      password: process.env.SQL_PASS,
-      database: process.env.SQL_NAME,
+      host: process.env.SQL_HOST!,
+      user: process.env.SQL_USER!,
+      password: process.env.SQL_PASS!,
+      database: process.env.SQL_NAME!,
     });
 
     // Verificar si el código de verificación es válido
-    const [verificationRows]: any = await connection.execute(
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
       'SELECT * FROM verification_codes WHERE email = ? AND code = ? AND expiration > NOW()',
       [email, code]
     );
 
+    // Cast rows to VerificationCode[]
+    const verificationRows: VerificationCode[] = rows as VerificationCode[];
+
     if (verificationRows.length > 0) {
       // Verificar si el usuario ya existe
-      const [userRows]: any = await connection.execute(
+      const [userRows]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
         'SELECT * FROM usuarios WHERE correo = ?',
         [email]
       );
 
+      // Cast rows to User[]
+      const users: User[] = userRows as User[];
+
       await connection.end();
       return NextResponse.json({
         message: 'Código verificado con éxito.',
-        userExists: userRows.length > 0,
-        username: userRows.length > 0 ? userRows[0].nombre_usuario : null,
+        userExists: users.length > 0,
+        username: users.length > 0 ? users[0].nombre_usuario : null,
       });
     } else {
       await connection.end();

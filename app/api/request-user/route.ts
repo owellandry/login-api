@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 import { v4 as uuidv4 } from 'uuid';
+import { RowDataPacket, FieldPacket } from 'mysql2';
+
+interface User {
+  id?: string;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  avatar: string;
+  nombre_usuario: string;
+  fecha_creacion?: Date;
+  fecha_actualizacion?: Date;
+}
 
 export async function POST(request: Request) {
   try {
@@ -11,19 +23,22 @@ export async function POST(request: Request) {
     }
 
     const connection = await mysql.createConnection({
-      host: process.env.SQL_HOST,
-      user: process.env.SQL_USER,
-      password: process.env.SQL_PASS,
-      database: process.env.SQL_NAME,
+      host: process.env.SQL_HOST!,
+      user: process.env.SQL_USER!,
+      password: process.env.SQL_PASS!,
+      database: process.env.SQL_NAME!,
     });
 
     // Verificar si el correo ya existe
-    const [rows]: any = await connection.execute(
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await connection.execute(
       'SELECT * FROM usuarios WHERE correo = ?',
       [email]
     );
 
-    if (rows.length > 0) {
+    // Cast rows to User[]
+    const users = rows as User[];
+
+    if (users.length > 0) {
       await connection.end();
       return NextResponse.json({ error: 'El correo ya existe.' }, { status: 400 });
     }
