@@ -1,43 +1,8 @@
 // doc/page.tsx
 
-"use client";
-
-import React, { useState } from "react";
-import { Button } from "@nextui-org/react";
+import React from "react";
 
 const Documentation = () => {
-  const [response, setResponse] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (event: React.FormEvent, endpoint: string) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const data = Object.fromEntries(formData.entries());
-
-    setLoading(true);
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setResponse(JSON.stringify(result, null, 2));
-        setError("");
-      } else {
-        setResponse("");
-        setError(JSON.stringify(result, null, 2));
-      }
-    } catch (err) {
-      setResponse("");
-      setError("Error en la solicitud");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="p-8 bg-gray-800 text-white min-h-screen">
       <h1 className="text-4xl font-extrabold mb-8 border-b-4 border-teal-500 pb-2">Documentación de la API</h1>
@@ -54,15 +19,20 @@ const Documentation = () => {
 }`}
             </code>
           </pre>
-          <form onSubmit={(e) => handleSubmit(e, '/api/request-code')} className="mt-4 bg-gray-900 p-4 rounded-lg shadow-md">
-            <label className="block mb-2">
-              <span className="text-teal-300">Email:</span>
-              <input type="email" name="email" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <Button className="p-" type="submit" color="primary" isLoading={loading} disabled={loading}>
-              Enviar
-            </Button>
-          </form>
+          <p><strong className="text-teal-300">Response:</strong></p>
+          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto">
+            <code>{`{
+  "message": "Código enviado correctamente"
+}`}
+            </code>
+          </pre>
+          <p><strong className="text-teal-300">Errores:</strong></p>
+          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto">
+            <code>{`{
+  "error": "El correo es requerido"
+}`}
+            </code>
+          </pre>
         </div>
       </section>
 
@@ -79,19 +49,20 @@ const Documentation = () => {
 }`}
             </code>
           </pre>
-          <form onSubmit={(e) => handleSubmit(e, '/api/verify-code')} className="mt-4 bg-gray-900 p-4 rounded-lg shadow-md">
-            <label className="block mb-2">
-              <span className="text-teal-300">Email:</span>
-              <input type="email" name="email" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <label className="block mb-2">
-              <span className="text-teal-300">Código:</span>
-              <input type="text" name="code" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <Button type="submit" color="primary" isLoading={loading} disabled={loading}>
-              Enviar
-            </Button>
-          </form>
+          <p><strong className="text-teal-300">Response:</strong></p>
+          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto">
+            <code>{`{
+  "message": "Código verificado con éxito."
+}`}
+            </code>
+          </pre>
+          <p><strong className="text-teal-300">Errores:</strong></p>
+          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto">
+            <code>{`{
+  "error": "Código inválido o expirado."
+}`}
+            </code>
+          </pre>
         </div>
       </section>
 
@@ -111,44 +82,19 @@ const Documentation = () => {
 }`}
             </code>
           </pre>
-          <form onSubmit={(e) => handleSubmit(e, '/api/request-user')} className="mt-4 bg-gray-900 p-4 rounded-lg shadow-md">
-            <label className="block mb-2">
-              <span className="text-teal-300">ID:</span>
-              <input type="text" name="id" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <label className="block mb-2">
-              <span className="text-teal-300">Email:</span>
-              <input type="email" name="email" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <label className="block mb-2">
-              <span className="text-teal-300">Username:</span>
-              <input type="text" name="username" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <label className="block mb-2">
-              <span className="text-teal-300">Name:</span>
-              <input type="text" name="name" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <label className="block mb-2">
-              <span className="text-teal-300">Lastname:</span>
-              <input type="text" name="lastname" className="mt-1 block w-full p-2 bg-gray-700 text-white rounded-md" required />
-            </label>
-            <Button type="submit" color="primary" isLoading={loading} disabled={loading}>
-              Enviar
-            </Button>
-          </form>
-        </div>
-      </section>
-
-      <section className="mb-12">
-        <h2 className="text-3xl font-semibold mb-4 text-teal-300">Resultados</h2>
-        <div className="bg-gray-900 p-6 rounded-lg shadow-md">
-          <p><strong className="text-teal-300">Respuesta:</strong></p>
-          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto text-green-400">
-            {response}
+          <p><strong className="text-teal-300">Response:</strong></p>
+          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto">
+            <code>{`{
+  "message": "Usuario creado con éxito."
+}`}
+            </code>
           </pre>
-          <p><strong className="text-teal-300">Error:</strong></p>
-          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto text-red-400">
-            {error}
+          <p><strong className="text-teal-300">Errores:</strong></p>
+          <pre className="bg-gray-700 p-4 rounded-md overflow-x-auto">
+            <code>{`{
+  "error": "El correo ya existe."
+}`}
+            </code>
           </pre>
         </div>
       </section>
