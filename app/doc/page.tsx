@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { Button } from "@nextui-org/react";
+import { PiCodeSimpleFill } from "react-icons/pi";
+import { ImLab } from "react-icons/im";
 
 const Documentation = () => {
   const [response, setResponse] = useState("");
@@ -38,9 +40,27 @@ const Documentation = () => {
 
   return (
     <div className="p-8 bg-gray-900 text-gray-300 min-h-screen">
+
+      <div className="flex items-center justify-between bg-gray-700 p-4 rounded-xl shadow-lg">
+        <div className="flex items-center space-x-4">
+          <span className="text-teal-400 text-5xl">
+            <PiCodeSimpleFill />
+          </span>
+          <span className="text-white text-3xl font-semibold tracking-wide">API DOCS</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <button className="flex items-center bg-teal-500 text-white text-lg font-semibold py-2 px-4 rounded-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400">
+            <span className="text-white text-2xl mr-2">
+              <ImLab />
+            </span>
+            PROBAR API
+          </button>
+        </div>
+      </div>
+
       <h1 className="text-4xl font-extrabold mb-8 text-white pb-2">Bienvenido a la API</h1>
       <h5 className="text-xl mb-8 text-gray-400 pb-2">Explore nuestra poderosa API para integrar nuestros servicios en tu aplicación.</h5>
-      
+
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4 text-teal-400">1. Endpoint: /api/request-code</h2>
         <div className="bg-gray-800 p-6 rounded-lg shadow-md">
