@@ -7,6 +7,8 @@ import Requestcode from "./layouts/request-code";
 import RequestUser from "./layouts/request-user";
 import VerifyCode from "./layouts/verify-code";
 import Resultados from "./layouts/resultados";
+import ExamplesCode from "./layouts/examples-code"
+import DataText from "./modules/Data"
 
 const Documentation = () => {
   const [response, setResponse] = useState<string>("");
@@ -58,14 +60,11 @@ const Documentation = () => {
         </button>
       </header>
 
-      <h1 className="text-4xl font-extrabold text-white mb-4">Bienvenido a la API</h1>
-      <h5 className="text-xl mb-8 text-gray-400">
-        Explore nuestra poderosa API para integrar nuestros servicios en tu aplicación.
-      </h5>
-
+      <DataText/>
       <Requestcode handleSubmit={handleSubmit} loading={loading} />
       <VerifyCode handleSubmit={handleSubmit} loading={loading} />
       <RequestUser handleSubmit={handleSubmit} loading={loading} />
+      <ExamplesCode/>
 
       <Resultados response={response} error={error} />
     </div>
